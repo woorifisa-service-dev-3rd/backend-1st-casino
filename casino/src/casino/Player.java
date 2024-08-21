@@ -8,36 +8,32 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Player {
     private static final int balance = 1_000_000; // 1000만원
+    private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) throws SQLException {
         PlayerDAO playerDAO = new PlayerDAO();
         CustomerInfo customerInfo;
-        Scanner sc = new Scanner(System.in);
+        String name;
+        int id;
 
         System.out.println("Welcome to Casino!");
 
         Connection connection = DatabaseUtil.getConnection();
         System.out.println("connection = " + connection);
 
-        System.out.print("이름을 입력하세요: ");
-        String name = sc.nextLine();
-        System.out.print("아이디를 입력하세요: ");
-        int id = sc.nextInt();
+        name = inputName();
+        id = inputId();
 
-        // player 입장!
-//        String insertPlayerQuery = "INSERT INTO player (name) VALUES (?)";
-//        PreparedStatement insertPlayerStatement = connection.prepareStatement(insertPlayerQuery, PreparedStatement.RETURN_GENERATED_KEYS);
-//        insertPlayerStatement.setString(id, name);
         int rowsAffected = playerDAO.createUser(name, id);
         System.out.println(rowsAffected);
         if (rowsAffected > 0) {
             new CustomerInfo(id, name);
             System.out.println("여기냐");
-
         } else {
             System.out.println("계정 생성에 실패했습니다. 다시 시도해주세요.");
         }
@@ -45,6 +41,38 @@ public class Player {
         handleMenu(connection, sc, name);
 //        menuSelect(connection, name);
 
+    }
+
+    private static String inputName() {
+        String name;
+        while (true) {
+            System.out.print("이름을 입력하세요: ");
+            name = sc.nextLine().trim(); // 공백 제거
+            if (!name.isEmpty()) { // 빈 문자열 체크
+                break;
+            }
+            System.out.println("이름은 비어 있을 수 없습니다. 다시 입력하세요.");
+        }
+        return name;
+    }
+
+    private static int inputId() {
+        int id;
+        while (true) {
+            System.out.print("아이디를 입력하세요 (정수): ");
+            try {
+                id = sc.nextInt();
+                if (id > 0) { // 아이디는 양수 정수여야 함
+                    break;
+                } else {
+                    System.out.println("아이디는 양수 정수여야 합니다. 다시 입력하세요.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("유효한 정수를 입력하세요.");
+                sc.next(); // 잘못된 입력을 제거
+            }
+        }
+        return id;
     }
 
     // 메뉴 선택 함수
