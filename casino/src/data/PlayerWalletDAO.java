@@ -41,13 +41,13 @@ public class PlayerWalletDAO {
         }
     }
 
-    public void initPlayerWallet() {
+    public void initPlayerWallet(int playerId) {
         String insertWalletQuery = "INSERT INTO play_wallet (player_id, balance, loan, loan_amount, remaining_games) VALUES (?, ?, ?, ?, ?)";
 
         // 쿼리 수행 객체 생성 및 쿼리 실행
         try {
             connection = DatabaseUtil.getConnection();
-            preparedStatement = connection.prepareStatement(updateQuery);
+            preparedStatement = connection.prepareStatement(insertWalletQuery);
             preparedStatement.setInt(1, playerId);
             preparedStatement.setLong(2, 1000000); // 초기 금액 100만원
             // 대출 받을 시 loan 상태를 true로 바꾸고 금액을 관리할 것
