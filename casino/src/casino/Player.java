@@ -1,5 +1,6 @@
 package casino;
 
+import data.PlayerWalletDAO;
 import db.DatabaseUtil;
 
 import java.sql.Connection;
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Player {
-    private static final int balance = 1_000_000; // 1000만원
+    private static int balance = 1_000_000; // 1000만원
 
     public static void main(String[] args) throws SQLException {
         Scanner sc = new Scanner(System.in);
@@ -41,14 +42,31 @@ public class Player {
                 System.out.println("잔액이 부족하여 강제로 종료합니다.");
                 System.exit(0);
             }
-            System.out.println("==== MENU ====");
-            System.out.println("1. 게임시작");
-            System.out.println("2. 대출하기");
-            System.out.println("3. 오늘의 게임왕 보기");
-            System.out.println("4. 종료");
 
+            menuChoice(name, connection, playerId, sc);
             int choice = sc.nextInt();
             sc.nextLine();
+        }
+    }
+
+    // ----------M E N U---------
+    // Menu Bar
+    public static void menubar() {
+        System.out.println("==== MENU ====");
+        System.out.println("1. 게임시작");
+        System.out.println("2. 대출하기");
+        System.out.println("3. 오늘의 게임왕 보기");
+        System.out.println("4. 종료");
+    }
+
+    // Menu choice
+    private static void menuChoice(String name, Connection connection, long playerId, Scanner sc) throws SQLException {
+
+        while (true) {
+            menubar();
+            int choice = sc.nextInt();
+            sc.nextLine();
+
             switch (choice) {
                 case 1:
                     startGame(name);
@@ -61,21 +79,22 @@ public class Player {
                     todayKing();
                     break;
                 case 4:
-                    exitCasino(sc);
+                    if (exitCasino(sc)) {
+                        return;
+                    }
                     break;
 
                 default:
                     System.out.println("잘못된 선택입니다. 다시 시도하세요.");
-                    break;
             }
         }
     }
 
-    // ----------M E N U---------
+
     // 1. 게임시작
     private static void startGame(String name) {
         System.out.println(name + "님 게임을 시작합니다.");
-        // 게임 시작 로직
+
     }
 
     // 2. 대출하기
@@ -91,7 +110,7 @@ public class Player {
         updatePlayerBalance(connection, playerId, newBalance);
     }
 
-    // 3. 오늘의게임황
+    // 3. 오늘의게임왕
     private static void todayKing() {
         System.out.println("오늘의 게임왕입니다!");
         //게임왕 코드
@@ -107,6 +126,7 @@ public class Player {
         }
         return false;
     }
+
 
     //player name으로 id 가져오는 함수
     private static long getPlayerIdByName(Connection connection, String name) throws SQLException {
