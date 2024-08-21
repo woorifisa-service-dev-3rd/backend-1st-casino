@@ -32,8 +32,12 @@ public class Casino {
 
     private int askBetAmount() {
         System.out.println("얼마를 거실건가요?");
-
-        return Integer.parseInt(scn.nextLine());
+        int betPrice = Integer.parseInt(scn.nextLine());
+        if (betPrice > balance) {
+            System.out.println("현재 잔액보다 크게 배팅할 수는 없습니다.");
+            askBetAmount();
+        }
+        return betPrice;
     }
 
     private String askOddEven() {
