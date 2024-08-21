@@ -30,6 +30,7 @@ public class Player {
         System.out.println(rowsAffected);
         if (rowsAffected > 0) {
             getUserInfo(name);
+            playerDAO.initPlayerWallet();
             //잘 들어오나 확인하는 곳
         } else {
             System.out.println("계정 생성에 실패했습니다. 다시 시도해주세요.");
