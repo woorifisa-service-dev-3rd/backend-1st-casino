@@ -1,7 +1,5 @@
 package casino;
 
-import dev.service.cloud.Console;
-
 public class Player {
 
 	public static void main(String[] args) {
