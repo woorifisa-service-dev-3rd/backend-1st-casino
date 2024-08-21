@@ -1,5 +1,8 @@
 package model;
 
+import lombok.Getter;
+
+@Getter
 public class Wallet {
     int id;             //walletId
     int playerId;
@@ -16,4 +19,5 @@ public class Wallet {
         this.loanAmount = loanAmount;
         this.remainingGame = remainingGame;
     }
+
 }
