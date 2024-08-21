@@ -1,7 +1,6 @@
 package casino;
 
 import data.PlayerWalletDAO;
-import dev.service.cloud.Console;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -57,8 +56,10 @@ public class Casino {
 
     private void calculateBetOutcome(boolean isCorrect, int money) {
         if (isCorrect) {
-            playerWalletDAO.updateBalance(money * 2, playerId);
+            System.out.printf("축하합니다! %d의 돈을 가져갑니다!", money * 2);
+            playerWalletDAO.updateBalance(balance + money * 2, playerId);
         } else {
+            System.out.printf("우우~~ 실패! %d를 잃었습니다!", money);
             playerWalletDAO.updateBalance(balance - money, playerId);
         }
     }
