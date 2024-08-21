@@ -89,7 +89,6 @@ public class Player {
         int remainingGames = Bank.leftGameCnt();
         System.out.println("남은 판 수: " + remainingGames);
         updatePlayerBalance(connection, playerId, newBalance);
-        balance = (int) newBalance;
     }
 
     // 3. 오늘의게임황
