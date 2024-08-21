@@ -1,7 +1,9 @@
 package casino;
 
 import data.PlayerWalletDAO;
+import data.RecordDAO;
 
+import java.sql.Connection;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -21,11 +23,11 @@ public class Casino {
         this.balance = balance;
     }
 
-    public void gameRun() {
+    public void gameRun(Connection connection) {
         int money = askBetAmount();
 
         boolean oddEvenCorrect = isOddEvenCorrect(getRandomNumber(), askOddEven());
-        calculateBetOutcome(oddEvenCorrect, money);
+        calculateBetOutcome(connection, oddEvenCorrect, money);
     }
 
     private int askBetAmount() {
@@ -54,13 +56,16 @@ public class Casino {
         return random.nextInt(10); // 1부터 10까지의 랜덤 수
     }
 
-    private void calculateBetOutcome(boolean isCorrect, int money) {
+    private void calculateBetOutcome(Connection connection, boolean isCorrect, int money) {
+        RecordDAO recordDAO = new RecordDAO(connection);
         if (isCorrect) {
             System.out.printf("축하합니다! %d의 돈을 가져갑니다!\n", money * 2);
             playerWalletDAO.updateBalance(balance + money * 2, playerId);
+            recordDAO.updateWinsLoses(playerId, money * 2, 0);
         } else {
             System.out.printf("우우~~ 실패! %d를 잃었습니다!\n", money);
             playerWalletDAO.updateBalance(balance - money, playerId);
+            recordDAO.updateWinsLoses(playerId, 0, money);
         }
     }
 

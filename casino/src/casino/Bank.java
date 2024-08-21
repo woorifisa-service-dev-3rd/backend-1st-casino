@@ -19,7 +19,7 @@ public class Bank {
     private static int leftGame = 10;
     private static boolean hasLoan = false;
 
-    public static long bankLoan (Connection connection, int playerId, long balance) throws SQLException {
+    public static int bankLoan (Connection connection, int playerId, int balance) throws SQLException {
         System.out.println("===========");
         System.out.println("대출하기를 선택하셨습니다.");
         System.out.println("대출하기를 선택하시면, 1회에 한하여 1,000만원을 빌려드리며");

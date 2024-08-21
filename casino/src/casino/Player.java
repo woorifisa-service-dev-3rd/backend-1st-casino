@@ -1,5 +1,6 @@
 package casino;
 
+import data.PlayerWalletDAO;
 import db.DatabaseUtil;
 
 import java.sql.Connection;
@@ -9,7 +10,6 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Player {
-    private static final int balance = 1_000_000; // 1000만원
 
     public static void main(String[] args) throws SQLException {
         Scanner sc = new Scanner(System.in);
@@ -61,8 +61,6 @@ public class Player {
         }
 
         handleMenu(connection, sc, name);
-//        menuSelect(connection, name);
-
     }
 
     // 메뉴 선택 함수
@@ -88,14 +86,14 @@ public class Player {
 
                     System.out.println();
                     System.out.println(name + "님의 현재 잔액: " + balance);
-                    if (balance < 0) {
+                    if (balance <= 0) {
                         System.out.println("잔액이 부족하여 강제로 종료합니다.");
                         System.exit(0);
                     }
                     System.out.println("==== MENU ====");
                     System.out.println("1. 게임시작");
                     System.out.println("2. 대출하기");
-                    System.out.println("3. 오늘의 게임왕 보기");
+                    System.out.println("3. 게임왕과 게임거지 보기");
                     System.out.println("4. 종료");
 
                     int choice = sc.nextInt();
@@ -103,38 +101,26 @@ public class Player {
                     switch (choice) {
                         case 1:
                             System.out.println(name + "님 게임을 시작합니다.");
-                             casino = new Casino(balance, playerId);
-                            casino.gameRun();
+                            casino = new Casino(balance, playerId);
+                            casino.gameRun(connection);
                             break;
                         case 2:
                             System.out.println(name + "님 은행으로 이동합니다.");
                             // 대출 후 잔액 계산 (예시로 Bank 클래스의 bankLoan 메서드 사용)
-                            long newBalance = Bank.bankLoan(connection, playerId, balance);
+                            int newBalance = Bank.bankLoan(connection, playerId, balance);
                             System.out.println("대출 후 잔액: " + newBalance);
 
                             // 남은 판 수 계산 (예시로 Bank 클래스의 leftGameCnt 메서드 사용)
 //                            int remainingGames = Bank.leftGameCnt();
 //                            System.out.println("남은 판 수: " + remainingGames);
 
-                            // 업데이트된 잔액을 play_wallet 테이블에 저장
-                            String updateQuery = "UPDATE play_wallet SET balance = ? WHERE player_id = ?";
-                            PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
-                            updateStatement.setLong(1, newBalance);
-                            updateStatement.setInt(2, playerId);
-                            updateStatement.executeUpdate();
+                            PlayerWalletDAO playerWalletDAO = new PlayerWalletDAO();
+                            playerWalletDAO.updateBalance(newBalance, playerId);
 
-//                            for (int i = 10; i > 0 ; i--) {
-//                                System.out.println("대출 받았을 시의 진행되는 게임");
-//                                System.out.printf("이제 %d번 남았습니다\n", i);
-//                                 casino = new Casino(balance, (int) playerId);
-//                                casino.gameRun();
-//                            }
-
-                            updateStatement.close();
                             break;
                         case 3:
-                            System.out.println("오늘의 게임왕입니다!");
-                            //게임왕 코드
+                            System.out.println("게임왕과 게임거지 입니다!");
+                            Record.showKing(connection);
                             break;
                         case 4:
                             System.out.println("카지노를 떠나시겠습니까? (y/n) : ");
@@ -152,6 +138,7 @@ public class Player {
             }
         }
     }
+
 }
 
 
