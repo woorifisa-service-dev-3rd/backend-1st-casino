@@ -1,5 +1,7 @@
 package casino;
 
+import data.BankDAO;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -17,7 +19,7 @@ public class Bank {
     private static int leftGame = 10;
     private static boolean hasLoan = false;
 
-    public static long bankLoan (Connection connection, long playerId, long balance) throws SQLException {
+    public static long bankLoan (Connection connection, int playerId, long balance) throws SQLException {
         System.out.println("===========");
         System.out.println("대출하기를 선택하셨습니다.");
         System.out.println("대출하기를 선택하시면, 1회에 한하여 1,000만원을 빌려드리며");
@@ -33,7 +35,8 @@ public class Bank {
             System.out.println("1,000만원을 빌려드립니다. 지금으로부터 10판이 끝나면 자동으로 상환됩니다.");
 
             // DB 업데이트
-            updateLoanStatus(connection, playerId, 1000000, 10);
+            BankDAO bankDAO = new BankDAO(connection);
+            bankDAO.updateLoanStatus(playerId, 100000, 10);
 
             balance += 1000000;
             hasLoan = true;
@@ -50,23 +53,6 @@ public class Bank {
     public static int leftGameCnt() {
         leftGame -= 1;
         return leftGame;
-    }
-
-    private static void updateLoanStatus(Connection connection, long playerId, int loanAmount, int remainingGames) throws SQLException, SQLException {
-        String updateLoanQuery = "UPDATE play_wallet SET loan = ?, loan_amount = ?, remaining_games = ? WHERE player_id = ?";
-        PreparedStatement updateStatement = connection.prepareStatement(updateLoanQuery);
-        updateStatement.setBoolean(1, true);  // loan을 1로 설정 (대출 존재)
-        updateStatement.setInt(2, loanAmount);
-        updateStatement.setInt(3, remainingGames);
-        updateStatement.setLong(4, playerId);
-
-        int rowsUpdated = updateStatement.executeUpdate();
-        if (rowsUpdated > 0) {
-            System.out.println("대출 정보가 성공적으로 업데이트되었습니다.");
-        } else {
-            System.out.println("대출 정보 업데이트에 실패했습니다.");
-        }
-        updateStatement.close();
     }
 
 }

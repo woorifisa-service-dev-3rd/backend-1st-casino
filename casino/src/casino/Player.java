@@ -33,13 +33,13 @@ public class Player {
             // 방금 생성된 사용자의 ID 가져오기
             ResultSet generatedKeys = insertPlayerStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                long playerId = generatedKeys.getLong(1);
+                int playerId = generatedKeys.getInt(1);
 
                 // 초기 금액을 10만원으로 설정하여 play_wallet에 데이터 삽입
                 String insertWalletQuery = "INSERT INTO play_wallet (player_id, balance, loan, loan_amount, remaining_games) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement insertWalletStatement = connection.prepareStatement(insertWalletQuery);
-                insertWalletStatement.setLong(1, playerId);
-                insertWalletStatement.setInt(2, 1000000); // 초기 금액 100만원
+                insertWalletStatement.setInt(1, playerId);
+                insertWalletStatement.setLong(2, 1000000); // 초기 금액 100만원
 
                 // 대출 받을 시 loan 상태를 true로 바꾸고 금액을 관리할 것
                 insertWalletStatement.setBoolean(3, false); // 초기 loan 상태 false
@@ -71,15 +71,16 @@ public class Player {
         PreparedStatement playerIdStatement = connection.prepareStatement(playerIdQuery);
         playerIdStatement.setString(1, name);
         ResultSet playerIdResultSet = playerIdStatement.executeQuery();
+        Casino casino;
 
         if (playerIdResultSet.next()) {
-            long playerId = playerIdResultSet.getLong("id");
+            int playerId = playerIdResultSet.getInt("id");
 
             while (true) {
                 // play_wallet에서 잔액 가져오기
                 String balanceQuery = "SELECT balance FROM play_wallet WHERE player_id = ?";
                 PreparedStatement balanceStatement = connection.prepareStatement(balanceQuery);
-                balanceStatement.setLong(1, playerId);
+                balanceStatement.setInt(1, playerId);
                 ResultSet balanceResultSet = balanceStatement.executeQuery();
 
                 if (balanceResultSet.next()) {
@@ -102,7 +103,7 @@ public class Player {
                     switch (choice) {
                         case 1:
                             System.out.println(name + "님 게임을 시작합니다.");
-                            Casino casino = new Casino(balance, (int) playerId);
+                             casino = new Casino(balance, playerId);
                             casino.gameRun();
                             break;
                         case 2:
@@ -119,11 +120,17 @@ public class Player {
                             String updateQuery = "UPDATE play_wallet SET balance = ? WHERE player_id = ?";
                             PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
                             updateStatement.setLong(1, newBalance);
-                            updateStatement.setLong(2, playerId);
+                            updateStatement.setInt(2, playerId);
                             updateStatement.executeUpdate();
 
+//                            for (int i = 10; i > 0 ; i--) {
+//                                System.out.println("대출 받았을 시의 진행되는 게임");
+//                                System.out.printf("이제 %d번 남았습니다\n", i);
+//                                 casino = new Casino(balance, (int) playerId);
+//                                casino.gameRun();
+//                            }
+
                             updateStatement.close();
-                            balance = (int) newBalance;
                             break;
                         case 3:
                             System.out.println("오늘의 게임왕입니다!");
