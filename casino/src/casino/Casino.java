@@ -7,4 +7,7 @@ package casino;
 
 public class Casino {
 
+    public static void run(){
+
+    }
 }
