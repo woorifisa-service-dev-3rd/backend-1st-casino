@@ -1,6 +1,8 @@
 package casino;
 
+import data.PlayerDAO;
 import db.DatabaseUtil;
+import model.CustomerInfo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +14,8 @@ public class Player {
     private static final int balance = 1_000_000; // 1000만원
 
     public static void main(String[] args) throws SQLException {
+        PlayerDAO playerDAO = new PlayerDAO();
+        CustomerInfo customerInfo;
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Welcome to Casino!");
@@ -19,43 +23,21 @@ public class Player {
         Connection connection = DatabaseUtil.getConnection();
         System.out.println("connection = " + connection);
 
-        Scanner input = new Scanner(System.in);
         System.out.print("이름을 입력하세요: ");
-        String name = input.nextLine();
+        String name = sc.nextLine();
+        System.out.print("아이디를 입력하세요: ");
+        int id = sc.nextInt();
 
         // player 입장!
-        String insertPlayerQuery = "INSERT INTO player (name) VALUES (?)";
-        PreparedStatement insertPlayerStatement = connection.prepareStatement(insertPlayerQuery, PreparedStatement.RETURN_GENERATED_KEYS);
-        insertPlayerStatement.setString(1, name);
-        int rowsAffected = insertPlayerStatement.executeUpdate();
-
+//        String insertPlayerQuery = "INSERT INTO player (name) VALUES (?)";
+//        PreparedStatement insertPlayerStatement = connection.prepareStatement(insertPlayerQuery, PreparedStatement.RETURN_GENERATED_KEYS);
+//        insertPlayerStatement.setString(id, name);
+        int rowsAffected = playerDAO.createUser(name, id);
+        System.out.println(rowsAffected);
         if (rowsAffected > 0) {
-            // 방금 생성된 사용자의 ID 가져오기
-            ResultSet generatedKeys = insertPlayerStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                long playerId = generatedKeys.getLong(1);
+            new CustomerInfo(id, name);
+            System.out.println("여기냐");
 
-                // 초기 금액을 10만원으로 설정하여 play_wallet에 데이터 삽입
-                String insertWalletQuery = "INSERT INTO play_wallet (player_id, balance, loan, loan_amount, remaining_games) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement insertWalletStatement = connection.prepareStatement(insertWalletQuery);
-                insertWalletStatement.setLong(1, playerId);
-                insertWalletStatement.setInt(2, 1000000); // 초기 금액 100만원
-
-                // 대출 받을 시 loan 상태를 true로 바꾸고 금액을 관리할 것
-                insertWalletStatement.setBoolean(3, false); // 초기 loan 상태 false
-                insertWalletStatement.setInt(4, 0); // 초기 loan 금액
-                insertWalletStatement.setInt(5, 0); // 초기 남은 판 수
-
-                int walletRowsAffected = insertWalletStatement.executeUpdate();
-
-                if (walletRowsAffected > 0) {
-                    System.out.println(name + "님의 계정이 생성되었습니다! 즐거운 시간 보내세용");
-                } else {
-                    System.out.println("월렛 생성에 실패했습니다. 다시 시도해주세요.");
-                }
-
-                insertWalletStatement.close();
-            }
         } else {
             System.out.println("계정 생성에 실패했습니다. 다시 시도해주세요.");
         }
@@ -103,6 +85,8 @@ public class Player {
                         case 1:
                             System.out.println(name + "님 게임을 시작합니다.");
                             //게임 시작 코드
+                            Casino casino = new Casino(balance, (int) playerId);
+                            casino.gameRun();
                             break;
                         case 2:
                             System.out.println(name + "님 은행으로 이동합니다.");
@@ -123,6 +107,7 @@ public class Player {
 
                             updateStatement.close();
                             balance = (int) newBalance;
+
                             break;
                         case 3:
                             System.out.println("오늘의 게임왕입니다!");
