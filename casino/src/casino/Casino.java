@@ -1,5 +1,6 @@
 package casino;
 
+import data.PlayerWalletDAO;
 import dev.service.cloud.Console;
 
 import java.util.Random;
@@ -12,9 +13,12 @@ import java.util.Scanner;
 
 public class Casino {
     Scanner scn = new Scanner(System.in);
+    PlayerWalletDAO playerWalletDAO = new PlayerWalletDAO();
     int balance;    //player의 잔액을 나타내는
+    int playerId;
 
-    public Casino(int balance) {    //사용자의 잔액을 받아오는
+    public Casino(int balance, int playerId) {    //사용자의 잔액을 받아오는
+        this.playerId = playerId;
         this.balance = balance;
     }
 
@@ -22,6 +26,7 @@ public class Casino {
         int money = askBetAmount();
 
         boolean oddEvenCorrect = isOddEvenCorrect(getRandomNumber(), askOddEven());
+        calculateBetOutcome(oddEvenCorrect, money);
     }
 
     private int askBetAmount() {
@@ -50,10 +55,12 @@ public class Casino {
         return random.nextInt(10); // 1부터 10까지의 랜덤 수
     }
 
-    private int calculateBetOutcome(){
-
-
-        return
+    private void calculateBetOutcome(boolean isCorrect, int money) {
+        if (isCorrect) {
+            playerWalletDAO.updateBalance(money * 2, playerId);
+        } else {
+            playerWalletDAO.updateBalance(balance - money, playerId);
+        }
     }
 
 }
