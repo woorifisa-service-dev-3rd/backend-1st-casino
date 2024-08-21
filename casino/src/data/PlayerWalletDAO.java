@@ -41,14 +41,19 @@ public class PlayerWalletDAO {
         }
     }
 
-    public Wallet selectWallet() {
+    public void insertPlayerWallet() {
+
+    }
+
+    public Wallet selectWallet(int palyerId) {
         // 조회 SQL
-        final String selectQuery = "select * from play_wallet";
+        final String selectQuery = "select * from play_wallet where id =?";
         // 쿼리 수행 객체 생성 및 쿼리 실행
 
         try {
             connection = DatabaseUtil.getConnection();
             preparedStatement = connection.prepareStatement(selectQuery);
+            preparedStatement.setInt(1, palyerId);
 
             // 쿼리 수행 결과값을 가지고 있는 객체(ResultSet)
             resultSet = preparedStatement.executeQuery();
@@ -77,4 +82,17 @@ public class PlayerWalletDAO {
         }
         return null;
     }
+/*
+
+        // play_wallet에서 잔액 가져오기
+//        String balanceQuery = "SELECT balance FROM play_wallet WHERE player_id = ?";
+//        PreparedStatement balanceStatement = connection.prepareStatement(balanceQuery);
+//        balanceStatement.setLong(1, playerId);
+//        ResultSet balanceResultSet = balanceStatement.executeQuery();
+
+
+//        if (balanceResultSet.next()) {
+//        int balance = balanceResultSet.getInt("balance");
+ */
+
 }
