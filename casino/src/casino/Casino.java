@@ -35,7 +35,7 @@ public class Casino {
         int betPrice = Integer.parseInt(scn.nextLine());
         if (betPrice > balance) {
             System.out.println("현재 잔액보다 크게 배팅할 수는 없습니다.");
-            askBetAmount();
+            return askBetAmount();
         }
         return betPrice;
     }
