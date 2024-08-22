@@ -110,8 +110,27 @@ public class Player {
 
                     PlayerWalletDAO playerWalletDAO = new PlayerWalletDAO();
                     playerWalletDAO.updateBalance(newBalance, playerId);
-                    System.out.println("대출 후 잔액: " + newBalance);
-
+                    for (int i = 10; i > 0; i--) {
+                        Wallet getPlayerWallet = playerWalletDAO.selectWallet(playerId);
+                        System.out.println("대출 후 10판을 할 수 있으며 현재 " + i + "판 남았습니다.");
+                        System.out.println("현재 잔액은 " + getPlayerWallet.getBalance() + "원 입니다.");
+                        if (getPlayerWallet.getRemainingGame() > 0 && getPlayerWallet.getBalance() > 0) {
+                            casino = new Casino(getPlayerWallet.getBalance(), playerId);
+                            casino.gameRun(connection);
+                            playerWalletDAO.updateRemainingGames(i, playerId);
+                        } else if (getPlayerWallet.getBalance() <= 0) {
+                            System.out.println("잔액이 0원 이하여서 강제 종료 됩니다.");
+                            return;
+                        } else if (getPlayerWallet.getRemainingGame() <= 0) {
+                            System.out.println("대출 받고 난 후 10게임이 끝났습니다.");
+                            return;
+                        } else {
+                            System.out.println("개발자가 개발을 잘 못했으니 집에 가세요");
+                            return;
+                        }
+//                    System.out.println("잔액 " + getPlayerWallet.getBalance());
+                    }
+//                    System.out.println("대출 후 잔액: " + newBalance);
                     break;
                 case 3:
                     System.out.println("게임왕과 게임거지 입니다!");
