@@ -84,10 +84,10 @@ public class Player {
         int balance = getPlayerWallet.getBalance();
         int remainingGame = getPlayerWallet.getRemainingGame();
 
-        if (loan) {
-            System.out.println("대출 금액 : " + loanAmount);
-            System.out.println("잔액 : " + balance);
-        }
+//        if (loan) {
+//            System.out.println("대출 금액 : " + loanAmount);
+//            System.out.println("잔액 : " + balance);
+//        }
 
         if (loan && (balance < 0 || loanAmount < 0)) {
             System.out.println("돈이 없습니다. 나가게 됩니다.");
@@ -127,29 +127,30 @@ public class Player {
                     System.out.println("이미 대출을 받았습니다.");
                     return;
                 }
-
+//                balance += 1000000;
                 System.out.println(name + "님 은행으로 이동합니다.");
                 System.out.println(name + "님의 잔액은 " + balance);
 //                // 대출 후 잔액 계산 (예시로 Bank 클래스의 bankLoan 메서드 사용)
                 playerWalletDAO.updateIsLoan(playerId, balance);
-                for (int i = 1; i < 11; i++) {
+                for (int i = 10; i > 0; i--) {
                     Wallet getPlayerWallet = playerWalletDAO.selectWallet(playerId);
-                    System.out.println("대출 후 10판을 할 수 있으며 현재 " + i + "판 하셨습니다.");
-                    //  System.out.println("현재 잔액은 " + getPlayerWallet.getBalance() + "원 입니다.");
+                    System.out.println("대출 후 10판을 할 수 있으며 현재 " + i + "판 남았습니다.");
+                    System.out.println("현재 잔액은 " + getPlayerWallet.getBalance() + "원 입니다.");
                     if (getPlayerWallet.getRemainingGame() > 0 && getPlayerWallet.getBalance() > 0) {
-                        casino = new Casino(balance, playerId);
+                        casino = new Casino(getPlayerWallet.getBalance(), playerId);
                         casino.gameRun();
                         playerWalletDAO.updateRemainingGames(i, playerId);
-                    }
-                    if (getPlayerWallet.getBalance() < 0) {
+                    } else if (getPlayerWallet.getBalance() <= 0) {
                         System.out.println("잔액이 0원 이하여서 강제 종료 됩니다.");
-
-                    }
-                    if (getPlayerWallet.getRemainingGame() == 10) {
+                        return;
+                    } else if (getPlayerWallet.getRemainingGame() <= 0) {
                         System.out.println("대출 받고 난 후 10게임이 끝났습니다.");
                         return;
+                    } else {
+                        System.out.println("개발자가 개발을 잘 못했으니 집에 가세요");
+                        return;
                     }
-                    System.out.println("잔액 " + getPlayerWallet.getBalance());
+//                    System.out.println("잔액 " + getPlayerWallet.getBalance());
                 }
 
 //                long newBalance = Bank.bankLoan(balance);
