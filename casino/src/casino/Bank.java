@@ -1,5 +1,10 @@
 package casino;
 
+import data.BankDAO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 /**
@@ -14,7 +19,7 @@ public class Bank {
     private static int leftGame = 10;
     private static boolean hasLoan = false;
 
-    public static long bankLoan (long balance) {
+    public static int bankLoan (Connection connection, int playerId, int balance) throws SQLException {
         System.out.println("===========");
         System.out.println("대출하기를 선택하셨습니다.");
         System.out.println("대출하기를 선택하시면, 1회에 한하여 1,000만원을 빌려드리며");
@@ -25,9 +30,14 @@ public class Bank {
         if (loanYesNo.equals("y")) {
             if (hasLoan) {
                 System.out.println("이미 1회 대출하셨습니다. 대출이 불가능합니다.");
-                // 처음으로 돌아가기
+                return balance;
             }
             System.out.println("1,000만원을 빌려드립니다. 지금으로부터 10판이 끝나면 자동으로 상환됩니다.");
+
+            // DB 업데이트
+            BankDAO bankDAO = new BankDAO(connection);
+            bankDAO.updateLoanStatus(playerId, 100000, 10);
+
             balance += 1000000;
             hasLoan = true;
             // 게임 시작
@@ -36,13 +46,9 @@ public class Bank {
         } else {
             System.out.println("잘못 선택하셨습니다.");
         }
+
         // 처음 화면으로 돌아가기
         return balance;
-    }
-
-    public static int leftGameCnt() {
-        leftGame -= 1;
-        return leftGame;
     }
 
 }

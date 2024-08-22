@@ -1,7 +1,9 @@
 package casino;
 
 import data.PlayerWalletDAO;
+import data.RecordDAO;
 
+import java.sql.Connection;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -21,17 +23,21 @@ public class Casino {
         this.balance = balance;
     }
 
-    public void gameRun() {
+    public void gameRun(Connection connection) {
         int money = askBetAmount();
 
         boolean oddEvenCorrect = isOddEvenCorrect(getRandomNumber(), askOddEven());
-        calculateBetOutcome(oddEvenCorrect, money);
+        calculateBetOutcome(connection, oddEvenCorrect, money);
     }
 
     private int askBetAmount() {
         System.out.println("얼마를 거실건가요?");
-
-        return Integer.parseInt(scn.nextLine());
+        int betPrice = Integer.parseInt(scn.nextLine());
+        if (betPrice > balance) {
+            System.out.println("현재 잔액보다 크게 배팅할 수는 없습니다.");
+            return askBetAmount();
+        }
+        return betPrice;
     }
 
     private String askOddEven() {
@@ -54,11 +60,16 @@ public class Casino {
         return random.nextInt(10); // 1부터 10까지의 랜덤 수
     }
 
-    private void calculateBetOutcome(boolean isCorrect, int money) {
+    private void calculateBetOutcome(Connection connection, boolean isCorrect, int money) {
+        RecordDAO recordDAO = new RecordDAO(connection);
         if (isCorrect) {
-            playerWalletDAO.updateBalance(money * 2, playerId);
+            System.out.printf("축하합니다! %d의 돈을 가져갑니다!\n", money * 2);
+            playerWalletDAO.updateBalance(balance + money * 2, playerId);
+            recordDAO.updateWinsLoses(playerId, money * 2, 0);
         } else {
+            System.out.printf("우우~~ 실패! %d를 잃었습니다!\n", money);
             playerWalletDAO.updateBalance(balance - money, playerId);
+            recordDAO.updateWinsLoses(playerId, 0, money);
         }
     }
 
