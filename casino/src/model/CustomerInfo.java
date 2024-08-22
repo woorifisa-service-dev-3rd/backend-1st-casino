@@ -1,24 +1,17 @@
 package model;
 
+import lombok.Getter;
+
 /**
  * 사용자의 정보를 담는 data class
  */
+@Getter
 public class CustomerInfo {
-	int playerId;
-	int playerName;
-	public int getPlayerId() {
-		return playerId;
-	}
-	
-	public void setPlayerId(int playerId) {
-		this.playerId = playerId;
-	}
-	public int getPlayerName() {
-		return playerName;
-	}
-	public void setPlayerName(int playerName) {
-		this.playerName = playerName;
-	}
-	
+    int playerId;
+    String playerName;
 
+    public CustomerInfo(int playerId, String playerName) {
+        this.playerId = playerId;
+        this.playerName = playerName;
+    }
 }
