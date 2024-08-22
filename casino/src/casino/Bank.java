@@ -46,13 +46,9 @@ public class Bank {
         } else {
             System.out.println("잘못 선택하셨습니다.");
         }
+
         // 처음 화면으로 돌아가기
         return balance;
-    }
-
-    public static int leftGameCnt() {
-        leftGame -= 1;
-        return leftGame;
     }
 
 }

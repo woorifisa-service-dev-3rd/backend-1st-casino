@@ -20,9 +20,25 @@ public class BankDAO {
             updateStatement.setBoolean(1, true);  // loan을 1로 설정 (대출 존재)
             updateStatement.setInt(2, loanAmount);
             updateStatement.setInt(3, remainingGames);
-            updateStatement.setLong(4, playerId);
+            updateStatement.setInt(4, playerId);
+
+            // 쿼리 실행
+            updateStatement.executeUpdate();
+
         }
+
     }
 
-
+    public void searchLoan(int playerId) {
+        String searchLoanQuery = "SELECT loan FROM play_wallet WHERE player_id = ?";
+        try (PreparedStatement searchLoanStatement = connection.prepareStatement(searchLoanQuery);
+             ResultSet resultSet = searchLoanStatement.executeQuery();
+        ) {
+            if (resultSet.next()) {
+                int hasLoan = resultSet.getInt("loan");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

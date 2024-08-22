@@ -68,33 +68,20 @@ public class PlayerWalletDAO {
         }
     }
 
-    public void updateIsLoan(int playerId, int balance) {
-        // 조회 SQL
-        final String updateQuery = "update play_wallet set loan = ?, remaining_games = ?, balance = ? where player_id = ?";
-        final int addLoanMoney = 1000000;   //100만원
-        // 쿼리 수행 객체 생성 및 쿼리 실행
-        try {
-            connection = DatabaseUtil.getConnection();
-            preparedStatement = connection.prepareStatement(updateQuery);
-            preparedStatement.setBoolean(1, true);
-            preparedStatement.setInt(2, 10);
-            preparedStatement.setInt(3, balance + addLoanMoney);
-            preparedStatement.setInt(4, playerId);
-
-            // 쿼리 수행 결과값을 가지고 있는 객체(ResultSet)
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            // 자원 반납, 해제(순서->역순)
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+    // loan 여부와 remaining_games 조회
+    public boolean hasLoan(Connection connection, int playerId) throws SQLException {
+        String query = "SELECT loan, remaining_games FROM play_wallet WHERE player_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, playerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int loan = rs.getInt("loan");
+                    int remainingGames = rs.getInt("remaining_games");
+                    return loan == 1 && remainingGames > 0;
+                }
             }
         }
+        return false;
     }
 
     public void initPlayerWallet(int playerId) {
