@@ -68,22 +68,6 @@ public class PlayerWalletDAO {
         }
     }
 
-    // loan 여부와 remaining_games 조회
-    public boolean hasLoan(Connection connection, int playerId) throws SQLException {
-        String query = "SELECT loan, remaining_games FROM play_wallet WHERE player_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, playerId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    int loan = rs.getInt("loan");
-                    int remainingGames = rs.getInt("remaining_games");
-                    return loan == 1 && remainingGames > 0;
-                }
-            }
-        }
-        return false;
-    }
-
     public void initPlayerWallet(int playerId) {
         String insertWalletQuery = "INSERT INTO play_wallet (player_id, balance, loan, loan_amount, remaining_games) VALUES (?, ?, ?, ?, ?)";
 

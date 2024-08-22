@@ -94,9 +94,6 @@ public class Player {
         Casino casino;
         switch (choice) {
             case 1:
-                // player_id로 loan을 조회해서 1이라면, 그때부터 10판 세기 시작
-                // 게임 한 판 마다 1씩 감소
-                // 게임 시작 코드
                 System.out.println(name + "님 게임을 시작합니다.");
                 //게임 시작 코드
                 casino = new Casino(balance, playerId);
@@ -128,9 +125,7 @@ public class Player {
                         System.out.println("개발자가 개발을 잘 못했으니 집에 가세요");
                         return;
                     }
-//                    System.out.println("잔액 " + getPlayerWallet.getBalance());
                 }
-//                    System.out.println("대출 후 잔액: " + newBalance);
                 break;
             case 3:
                 System.out.println("게임왕과 게임거지 입니다!");

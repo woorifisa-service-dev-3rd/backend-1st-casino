@@ -1,7 +1,5 @@
 package data;
 
-import db.DatabaseUtil;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
