@@ -27,7 +27,6 @@ public class Player {
 
     private static void createUser(int rowsAffected, String name) {
 
-        System.out.println(rowsAffected);
         if (rowsAffected > 0) {
             int userId = getUserId(name);
             playerWalletDAO.initPlayerWallet(userId);
@@ -71,10 +70,11 @@ public class Player {
                 System.out.println("잔액이 부족하여 강제로 종료합니다.");
                 System.exit(0);
             }
-            //대출을 받았으면서
-            checkUserGameStatus(getPlayerWallet);
+
             printMenu();
-            selectMenu(name, balance, playerId);
+            selectMenu(name, getPlayerWallet);
+            //대출을 받았는지 판별
+            checkUserGameStatus(getPlayerWallet);
         }
     }
 
@@ -84,7 +84,12 @@ public class Player {
         int balance = getPlayerWallet.getBalance();
         int remainingGame = getPlayerWallet.getRemainingGame();
 
-        if (loan == true && (balance < 0 || loanAmount < 0)) {
+        if (loan) {
+            System.out.println("대출 금액 : " + loanAmount);
+            System.out.println("잔액 : " + balance);
+        }
+
+        if (loan && (balance < 0 || loanAmount < 0)) {
             System.out.println("돈이 없습니다. 나가게 됩니다.");
             System.exit(0);
         }
@@ -104,18 +109,49 @@ public class Player {
         return playerId;
     }
 
-    private static void selectMenu(String name, int balance, int playerId) {
+    private static void selectMenu(String name, Wallet playerInfo) {
         int choice = sc.nextInt();
+        int balance = playerInfo.getBalance();
+        int playerId = playerInfo.getPlayerId();
+        Casino casino;
         switch (choice) {
             case 1:
                 System.out.println(name + "님 게임을 시작합니다.");
                 //게임 시작 코드
-                Casino casino = new Casino(balance, playerId);
+                casino = new Casino(balance, playerId);
                 casino.gameRun();
                 break;
             case 2:
-//                System.out.println(name + "님 은행으로 이동합니다.");
+                //이미 대출 받은 경우
+                if (playerInfo.isLoan()) {
+                    System.out.println("이미 대출을 받았습니다.");
+                    return;
+                }
+
+                System.out.println(name + "님 은행으로 이동합니다.");
+                System.out.println(name + "님의 잔액은 " + balance);
 //                // 대출 후 잔액 계산 (예시로 Bank 클래스의 bankLoan 메서드 사용)
+                playerWalletDAO.updateIsLoan(playerId, balance);
+                for (int i = 1; i < 11; i++) {
+                    Wallet getPlayerWallet = playerWalletDAO.selectWallet(playerId);
+                    System.out.println("대출 후 10판을 할 수 있으며 현재 " + i + "판 하셨습니다.");
+                    //  System.out.println("현재 잔액은 " + getPlayerWallet.getBalance() + "원 입니다.");
+                    if (getPlayerWallet.getRemainingGame() > 0 && getPlayerWallet.getBalance() > 0) {
+                        casino = new Casino(balance, playerId);
+                        casino.gameRun();
+                        playerWalletDAO.updateRemainingGames(i, playerId);
+                    }
+                    if (getPlayerWallet.getBalance() < 0) {
+                        System.out.println("잔액이 0원 이하여서 강제 종료 됩니다.");
+
+                    }
+                    if (getPlayerWallet.getRemainingGame() == 10) {
+                        System.out.println("대출 받고 난 후 10게임이 끝났습니다.");
+                        return;
+                    }
+                    System.out.println("잔액 " + getPlayerWallet.getBalance());
+                }
+
 //                long newBalance = Bank.bankLoan(balance);
 //                System.out.println("대출 후 잔액: " + newBalance);
 //
@@ -126,8 +162,8 @@ public class Player {
 //                // 업데이트된 잔액을 play_wallet 테이블에 저장
 //                playerWalletDAO.updateBalance((int) newBalance, playerId);
 //
-//                break;
-                //여기를 뭔가 다시 짜야될거 같은데 어떡하지
+                break;
+            //여기를 뭔가 다시 짜야될거 같은데 어떡하지
             case 3:
                 System.out.println("오늘의 게임왕입니다!");
                 //게임왕 코드

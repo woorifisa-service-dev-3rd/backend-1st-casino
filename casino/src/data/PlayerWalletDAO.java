@@ -41,6 +41,62 @@ public class PlayerWalletDAO {
         }
     }
 
+    public void updateRemainingGames(int count, int playerId) {
+        // 조회 SQL
+        final String updateQuery = "update play_wallet set remaining_games = ? where player_id = ?";
+
+        // 쿼리 수행 객체 생성 및 쿼리 실행
+        try {
+            connection = DatabaseUtil.getConnection();
+            preparedStatement = connection.prepareStatement(updateQuery);
+            preparedStatement.setInt(1, count);
+            preparedStatement.setInt(2, playerId);
+
+            // 쿼리 수행 결과값을 가지고 있는 객체(ResultSet)
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 자원 반납, 해제(순서->역순)
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateIsLoan(int playerId, int balance) {
+        // 조회 SQL
+        final String updateQuery = "update play_wallet set loan = ?, remaining_games = ?, balance = ? where player_id = ?";
+        final int addLoanMoney = 1000000;   //100만원
+        // 쿼리 수행 객체 생성 및 쿼리 실행
+        try {
+            connection = DatabaseUtil.getConnection();
+            preparedStatement = connection.prepareStatement(updateQuery);
+            preparedStatement.setBoolean(1, true);
+            preparedStatement.setInt(2, 10);
+            preparedStatement.setInt(3, balance + addLoanMoney);
+            preparedStatement.setInt(4, playerId);
+
+            // 쿼리 수행 결과값을 가지고 있는 객체(ResultSet)
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 자원 반납, 해제(순서->역순)
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void initPlayerWallet(int playerId) {
         String insertWalletQuery = "INSERT INTO play_wallet (player_id, balance, loan, loan_amount, remaining_games) VALUES (?, ?, ?, ?, ?)";
 
@@ -73,7 +129,7 @@ public class PlayerWalletDAO {
 
     public Wallet selectWallet(int palyerId) {
         // 조회 SQL
-        final String selectQuery = "select * from play_wallet where id =?";
+        final String selectQuery = "select * from play_wallet where player_id =?";
         // 쿼리 수행 객체 생성 및 쿼리 실행
 
         try {
@@ -90,7 +146,6 @@ public class PlayerWalletDAO {
                 boolean isLoan = resultSet.getBoolean("loan");
                 int loanAmount = resultSet.getInt("loan_amount");
                 int remainingGame = resultSet.getInt("remaining_games");
-
                 // DB에서 받아온 데이터를 Todo 모델 객체로 바인딩
                 return new Wallet(id, playerId, balance, isLoan, loanAmount, remainingGame);
             }
