@@ -84,10 +84,10 @@ public class Player {
         int balance = getPlayerWallet.getBalance();
         int remainingGame = getPlayerWallet.getRemainingGame();
 
-        if (loan) {
-            System.out.println("대출 금액 : " + loanAmount);
-            System.out.println("잔액 : " + balance);
-        }
+//        if (loan) {
+//            System.out.println("대출 금액 : " + loanAmount);
+//            System.out.println("잔액 : " + balance);
+//        }
 
         if (loan && (balance < 0 || loanAmount < 0)) {
             System.out.println("돈이 없습니다. 나가게 됩니다.");
